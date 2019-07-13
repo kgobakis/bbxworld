@@ -1,97 +1,129 @@
 import React from 'react';
 import {
-  Text,
-  View,
-  TouchableOpacity,
-  Button,
-  SafeAreaView,
+    Text,
+    View,
+    TouchableOpacity,
+    Button,
+    SafeAreaView,
 } from 'react-native';
-
-import { Camera, Permissions } from 'expo';
+import {withNavigationFocus} from 'react-navigation'
+import {Camera} from 'expo-camera';
+import * as Permissions from 'expo-permissions'
+import * as ImagePicker from 'expo-image-picker';
 import Toolbar from './Toolbar';
 import styles from './styles';
+// import VideoPlayer from "./VideoPlayer";
+import VideoPlayer from 'expo-video-player'
+import {Audio, Video} from 'expo-av'
+import CustomCamera from "./CustomCamera";
 
-export default class CameraScreen extends React.Component {
-  camera = null;
+class CameraScreen extends React.Component {
+    camera = Camera;
 
-  state = {
-    captures: [],
-    capturing: null,
-    hasCameraPermission: null,
-    cameraType: Camera.Constants.Type.back,
-    flashMode: Camera.Constants.FlashMode.off,
-  };
 
-  setFlashMode = flashMode => this.setState({ flashMode });
-  setCameraType = cameraType => this.setState({ cameraType });
-  handleCaptureIn = () => this.setState({ capturing: true });
+    state = {
+        captures: [],
+        capturing: null,
+        cameraType: Camera.Constants.Type.back,
+        hasCameraPermission: null,
+        video: null,
+        duration: null,
+    };
+    setCameraType = cameraType => this.setState({cameraType});
+    handleCaptureIn = () => this.setState({capturing: true});
+    handleCaptureIn = () => this.setState({capturing: true});
 
-  handleCaptureOut = () => {
-    if (this.state.capturing) this.camera.stopRecording();
-  };
+    handleCaptureOut = () => {
+        if (this.state.capturing) this.camera.stopRecording();
+    };
 
-  handleShortCapture = async () => {
-    const photoData = await this.camera.takePictureAsync();
-    this.setState({
-      capturing: false,
-      captures: [photoData, ...this.state.captures],
-    });
-  };
+    handleLongCapture = async () => {
+        const videoData = await this.camera.recordAsync();
+        this.setState({
+            capturing: false,
+            captures: [videoData, ...this.state.captures],
+        });
+    };
 
-  handleLongCapture = async () => {
-    const videoData = await this.camera.recordAsync();
-    this.setState({
-      capturing: false,
-      captures: [videoData, ...this.state.captures],
-    });
-  };
 
-  async componentWillMount() {
-    const camera = await Permissions.askAsync(Permissions.CAMERA);
-    const audio = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
-    const hasCameraPermission =
-      camera.status === 'granted' && audio.status === 'granted';
+    async componentDidMount() {
+        const camera = await Permissions.askAsync(Permissions.CAMERA);
+        const audio = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+        const hasCameraPermission =
+            camera.status === 'granted' && audio.status === 'granted';
 
-    this.setState({ hasCameraPermission });
-  }
-
-  render() {
-    const {
-      hasCameraPermission,
-      flashMode,
-      cameraType,
-      capturing,
-      captures,
-    } = this.state;
-
-    if (hasCameraPermission === null) {
-      return <View />;
-    } else if (hasCameraPermission === false) {
-      return <Text>Access to camera has been denied.</Text>;
+        Audio.setAudioModeAsync({ staysActiveInBackground : true })
+        this.setState({hasCameraPermission});
     }
-    return (
-      <React.Fragment>
-        <View>
-          <Camera
-            type={cameraType}
-            flashMode={flashMode}
-            style={styles.preview}
-            ref={camera => (this.camera = camera)}
-          />
-        </View>
 
-        <Toolbar
-          capturing={capturing}
-          flashMode={flashMode}
-          cameraType={cameraType}
-          setFlashMode={this.setFlashMode}
-          setCameraType={this.setCameraType}
-          onCaptureIn={this.handleCaptureIn}
-          onCaptureOut={this.handleCaptureOut}
-          onLongCapture={this.handleLongCapture}
-          onShortCapture={this.handleShortCapture}
-        />
-      </React.Fragment>
-    );
-  }
+    handleChooseVideo = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+            allowsEditing: true,
+            aspect: [16, 9],
+        });
+        if (!result.cancelled) {
+            this.setState({video: result.uri});
+        }
+    };
+
+    render() {
+        let {video} = this.state;
+        const {isFocused} = this.props
+
+        const {
+            hasCameraPermission,
+            flashMode,
+            cameraType,
+            capturing,
+        } = this.state;
+
+        if (hasCameraPermission === null) {
+            return <View/>;
+        } else if (hasCameraPermission === false) {
+            return <Text>Access to camera has been denied.</Text>;
+        }
+        return (
+            <React.Fragment>
+                {video === null && isFocused &&
+                <Camera
+                    ratio={'16:9'}
+                    type={cameraType}
+                    style={styles.preview}
+                    ref={camera => (this.camera = camera)}
+                />}
+
+                {video === null && isFocused &&
+                <Toolbar
+                    capturing={capturing}
+                    flashMode={flashMode}
+                    cameraType={cameraType}
+                    setCameraType={this.setCameraType}
+                    onCaptureIn={this.handleCaptureIn}
+                    onCaptureOut={this.handleCaptureOut}
+                    onLongCapture={this.handleLongCapture}
+                    handleCapture={this.handleChooseVideo}
+                />}
+
+                {video !== null && isFocused &&
+                <View>
+                    {/*<VideoPlayer captures={this.state.video}/>*/}
+                    <VideoPlayer
+                        videoProps={{
+                            shouldPlay: true,
+                            resizeMode: Video.RESIZE_MODE_CONTAIN,
+                            source: {
+                                uri: video,
+                            },
+                        }}
+                        isPortrait={true}
+                        playFromPositionMillis={0}
+                    />
+                </View>}
+
+            </React.Fragment>
+        );
+    }
 }
+
+export default withNavigationFocus(CameraScreen);
