@@ -1,6 +1,6 @@
 import React from 'react';
 import {Camera} from 'expo-camera';
-import {Ionicons, MaterialCommunityIcons} from '@expo/vector-icons';
+import {Ionicons, MaterialIcons} from '@expo/vector-icons';
 import {Col, Row, Grid} from 'react-native-easy-grid';
 import {View, TouchableWithoutFeedback, TouchableOpacity} from 'react-native';
 
@@ -23,9 +23,9 @@ export default ({
                     <Ionicons name="ios-images" style={{color: 'pink', fontSize: 36}}/>
                 </TouchableOpacity>
             </Col>
-            <Col style={styles.alignCenter}>
+            <Col style={styles.topToolbar}>
                 <TouchableOpacity>
-                    <MaterialCommunityIcons name="metronome"
+                    <MaterialIcons name="keyboard-backspace"
                                             style={{fontSize: 30}}
                                             color={'pink'}
                     />

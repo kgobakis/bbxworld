@@ -14,7 +14,6 @@
 
 import React, {Component} from 'react';
 import AppContainer from './container/AppContainer';
-import CustomCamera from "./components/CustomCamera";
 
 export default class App extends Component {
     render() {

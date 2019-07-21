@@ -1,6 +1,6 @@
 import { StyleSheet, Dimensions } from 'react-native';
 
-const { width: winWidth, height: winHeight } = Dimensions.get('window');
+export const { width: winWidth, height: winHeight } = Dimensions.get('window');
 
 export default StyleSheet.create({
   alignCenter: {
@@ -21,6 +21,12 @@ export default StyleSheet.create({
     width: winWidth,
     position: 'absolute',
     height: 100,
+    bottom: 0,
+  },
+  topToolbar: {
+    width: winWidth+500,
+    position: 'absolute',
+    height: winHeight-25,
     bottom: 0,
   },
   captureBtn: {

@@ -2,9 +2,6 @@ import React from 'react';
 import {
     Text,
     View,
-    TouchableOpacity,
-    Button,
-    SafeAreaView,
 } from 'react-native';
 import {withNavigationFocus} from 'react-navigation'
 import {Camera} from 'expo-camera';
@@ -12,14 +9,10 @@ import * as Permissions from 'expo-permissions'
 import * as ImagePicker from 'expo-image-picker';
 import Toolbar from './Toolbar';
 import styles from './styles';
-// import VideoPlayer from "./VideoPlayer";
-import VideoPlayer from 'expo-video-player'
-import {Audio, Video} from 'expo-av'
-import CustomCamera from "./CustomCamera";
+import VideoPlayer from "./VideoPlayer";
 
 class CameraScreen extends React.Component {
     camera = Camera;
-
 
     state = {
         captures: [],
@@ -37,6 +30,9 @@ class CameraScreen extends React.Component {
         if (this.state.capturing) this.camera.stopRecording();
     };
 
+    handlePlayPause = () => {
+
+    }
     handleLongCapture = async () => {
         const videoData = await this.camera.recordAsync();
         this.setState({
@@ -45,18 +41,30 @@ class CameraScreen extends React.Component {
         });
     };
 
+    // componentDidMount() {
+    //     this.playbackObject = new Audio.Sound();
+    //     Audio.setAudioModeAsync({
+    //         allowsRecordingIOS: true,
+    //         interruptionModeIOS: 1,
+    //         playsInSilentModeIOS: true,
+    //         staysActiveInBackground: true,
+    //         interruptionModeAndroid: 1,
+    //         shouldDuckAndroid: true,
+    //         playThroughEarpieceAndroid: true,
+    //     })
+    //
+    // }
 
-    async componentDidMount() {
+    async componentWillMount() {
+
         const camera = await Permissions.askAsync(Permissions.CAMERA);
         const audio = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
-        const hasCameraPermission =
-            camera.status === 'granted' && audio.status === 'granted';
-
-        Audio.setAudioModeAsync({ staysActiveInBackground : true })
+        const hasCameraPermission = camera.status === 'granted' && audio.status === 'granted';
         this.setState({hasCameraPermission});
     }
 
     handleChooseVideo = async () => {
+
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Videos,
             allowsEditing: true,
@@ -65,6 +73,7 @@ class CameraScreen extends React.Component {
         if (!result.cancelled) {
             this.setState({video: result.uri});
         }
+
     };
 
     render() {
@@ -106,20 +115,7 @@ class CameraScreen extends React.Component {
                 />}
 
                 {video !== null && isFocused &&
-                <View>
-                    {/*<VideoPlayer captures={this.state.video}/>*/}
-                    <VideoPlayer
-                        videoProps={{
-                            shouldPlay: true,
-                            resizeMode: Video.RESIZE_MODE_CONTAIN,
-                            source: {
-                                uri: video,
-                            },
-                        }}
-                        isPortrait={true}
-                        playFromPositionMillis={0}
-                    />
-                </View>}
+                <VideoPlayer video={video} play={this.handlePlayPause} />}
 
             </React.Fragment>
         );

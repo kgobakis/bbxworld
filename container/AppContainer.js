@@ -8,22 +8,26 @@ import {
 import Record from '../components/CameraScreen';
 import Feed from '../navigation/Feed';
 import MyVideos from '../navigation/MyVideos';
-import {TouchableOpacity, View} from 'react-native';
+import {TouchableOpacity, View, Image} from 'react-native';
 import WelcomeScreen from '../navigation/WelcomeScreen';
 import React from 'react';
 import {Ionicons, MaterialCommunityIcons, Entypo} from '@expo/vector-icons';
 
 const DashboardTabNavigator = createBottomTabNavigator(
     {
-        Record,
+        'Record' : <Record navigation={navigation.state}/>,
         Feed,
-        'My Videos': MyVideos,
+        'My Videos': <MyVideos/>,
     },
     {
         defaultNavigationOptions: ({navigation}) => {
+            const {routeName} = navigation.state;
+            let check = true;
+            if (routeName === 'Record') {
+                check = false;
+            }
             return {
                 tabBarIcon: ({focused, tintColor}) => {
-                    const {routeName} = navigation.state;
 
                     let iconName;
 
@@ -36,15 +40,17 @@ const DashboardTabNavigator = createBottomTabNavigator(
                     }
                 },
                 tabBarOptions: {
-                    activeTintColor: 'pink'
-                }
+                    activeTintColor: 'pink',
+                },
+                tabBarVisible: check
             };
         },
         navigationOptions: ({navigation}) => {
             const {routeName} = navigation.state.routes[navigation.state.index];
             if (routeName === 'Record') {
+
                 return {
-                    header: null
+                    header: null,
                 }
             }
             return {
@@ -61,6 +67,7 @@ const DashboardTabNavigator = createBottomTabNavigator(
     }
 );
 
+
 const DashboardStackNavigator = createStackNavigator({
     DashboardTabNavigator: DashboardTabNavigator,
 });
@@ -72,9 +79,19 @@ const AppDrawerNavigator = createDrawerNavigator({
 });
 
 const AppSwitchNavigator = createSwitchNavigator({
-    Welcome: {screen: WelcomeScreen},
-    Dashboard: {screen: AppDrawerNavigator},
-});
+        Welcome: {screen: WelcomeScreen},
+        Dashboard: {screen: AppDrawerNavigator},
+    },
+    {
+        navigationOptions: {
+            backgroundImage: (
+                <Image style={{flex: 1, height: 150, backgroundColor: '#fdc011'}}
+                       resizeMode="stretch"
+                       source={require('../images/background.png')}
+                />
+            ),
+        }
+    });
 
 const AppContainer = createAppContainer(AppSwitchNavigator);
 export default AppContainer;

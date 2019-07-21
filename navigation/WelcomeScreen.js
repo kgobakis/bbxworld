@@ -4,7 +4,7 @@ import React from "react";
 export default class WelcomeScreen extends React.Component {
     render() {
         return (
-            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <View style={{flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom:20}}>
                 <Button
                     title="Beatbox Now"
                     onPress={() => this.props.navigation.navigate('Dashboard')}

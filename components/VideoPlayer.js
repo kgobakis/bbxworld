@@ -1,43 +1,51 @@
-import {Dimensions, StyleSheet, View} from "react-native";
+import { StyleSheet, TouchableOpacity, View} from "react-native";
 import {Video} from "expo-av";
 import React from "react";
 import {MaterialIcons} from "@expo/vector-icons";
+import { winWidth, winHeight } from '../components/styles'
 
-
-export default class VideoPlayer extends React.Component {
-
-    render() {
-        let captures = this.props.captures;
-        return (
-            <View style={styles.container}>
-                <View>
-
-                    <Video
-                        shouldPlay={true}
-                        isLooping={true}
-                        resizeMode={Video.RESIZE_MODE_CONTAIN}
-                        source={{uri: captures}}
-                        isPortrait={true}
-                        playFromPositionMillis={0}
-                        style={{ width: Dimensions.get('window').width, height: Dimensions.get('window').height  }}
+export default ({
+                    video,
+                    play,
+                    mute,
+                    volume
+                }) => (
+    <View style={styles.container}>
+        <View>
+            <Video
+                ref={play}
+                volume={volume}
+                isMuted={mute}
+                shouldPlay={true}
+                isLooping={true}
+                resizeMode={Video.RESIZE_MODE_CONTAIN}
+                source={{uri: video}}
+                isPortrait={true}
+                playFromPositionMillis={0}
+                style={{width: winWidth, height: winHeight}}
+            />
+            <View style={styles.controlBar}>
+                <MaterialIcons
+                    name={"volume-up"}
+                    size={45}
+                    color="white"
+                />
+                <MaterialIcons
+                    name={"play-arrow"}
+                    size={45}
+                    color="white"
+                />
+                <TouchableOpacity>
+                    <MaterialIcons name="keyboard-backspace"
+                                   style={{fontSize: 30}}
+                                   color={'pink'}
+                                   onPress={() => this.props.navigation.navigate('Record')}
                     />
-                    <View style={styles.controlBar}>
-                        <MaterialIcons
-                            name={"volume-up"}
-                            size={45}
-                            color="white"
-                        />
-                        <MaterialIcons
-                            name={"play-arrow"}
-                            size={45}
-                            color="white"
-                        />
-                    </View>
-                </View>
+                </TouchableOpacity>
             </View>
-        );
-    }
-}
+        </View>
+    </View>
+);
 
 
 const styles = StyleSheet.create({
